@@ -1,0 +1,6 @@
+= ActsAsActivityStream
+
+ActsAsActivityStream is a Ruby on Rails engine providing social network with {activity streams}[http://activitystrea.ms/].
+The engine doesn't include any views or controllers, we build it in a light way, only with model logic.
+
+This project rocks and uses MIT-LICENSE.
