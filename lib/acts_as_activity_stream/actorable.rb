@@ -27,28 +27,68 @@ module ActsAsActivityStream
           actor.unfriend(subject.actor)
         end
 
+        def friend_actors(type = nil)
+          actor.friends.with_type(type)
+        end
+
+        def friends(type = nil)
+          friend_actors(type).map(&:actorable)
+        end
+
+        def pending_friend_actors(type = nil)
+          actor.pending_friends.with_type(type)
+        end
+
+        def pending_friends(type = nil)
+          pending_friend_actors.map(&:actorable)
+        end
+
         def has_friend?(subject)
           actor.has_friend?(subject.actor)
         end
 
-        def followers
-          actor.followers.map(&:actorable)
+        def follower_actors(type = nil)
+          actor.followers.with_type(type)
         end
 
-        def followings
-          actor.followings.map(&:actorable)
+        def followers(type = nil)
+          follower_actors(type).map(&:actorable)
         end
 
-        def friends
-          actor.friends.map(&:actorable)
+        def has_follower?(subject)
+          actor.has_follower?(subject.actor)
         end
 
-        def pending_friends
-          actor.pending_friends.map(&:actorable)
+        def following_actors(type = nil)
+          actor.followings.with_type(type)
         end
 
-        def suggestions(type = nil, size = 3, avoid_ids = [])
-          actor.suggestions(type, size, avoid_ids).map(&:actorable)
+        def followings(type = nil)
+          following_actors(type).map(&:actorable)
+        end
+
+        def has_following?(subject)
+          actor.has_following?(subject.actor)
+        end
+
+        # return relationship another {user} or other actor
+        # 1: friend 2: follower 3: following 4: no contact
+        def relationship(another)
+          if has_friend?(another)
+            return 1
+          elsif has_follower?(another)
+            return 2
+          elsif has_following?(another)
+            return 3
+          else
+            return 4
+          end
+        end
+
+        # return suggestion friend
+        # type of actor, default is current class type
+        def suggestions(type = nil, size = 3, avoid_actor_ids = [])
+          actor.suggestions(type || self.class.name, size, avoid_actor_ids).map(&:actorable)
         end
 
         # post a post with body data

@@ -58,7 +58,7 @@ class Actor < ActiveRecord::Base
            :dependent   => :destroy
 
   scope :with_type, lambda { |type|
-    where(:actorable_type => type)
+    where(:actorable_type => type.to_s.camelize) unless type.nil?
   }
 
   def to_builder
@@ -73,20 +73,33 @@ class Actor < ActiveRecord::Base
     actorable
   end
 
-  # follows
   def followers
     unblocked_senders
   end
 
-  # followings
+  # check if an actor is following current actor
+  def has_follower?(actor)
+    return true if actor == self
+    !actor.contact_to!(self).blocked
+  end
+
   def followings
     unblocked_receivers
+  end
+
+  # check if an actor is followed by current actor
+  def has_following?(actor)
+    return true if actor == self
+    !self.contact_to!(actor).blocked
   end
 
   # friends
   # make contact to each other
   def friends
-    unblocked_senders.where("actors.id in (?)", unblocked_receivers)
+    receivers.joins{received_contacts.inverse}.where{
+      (received_contacts.inverse.blocked.eq false) &
+      (received_contacts.blocked.eq false)
+    }
   end
 
   # check if an actor is a friend to current actor
@@ -169,7 +182,7 @@ class Actor < ActiveRecord::Base
   end
 
   def pending_friends
-    pending_contacts.map(&:receiver)
+    Actor.where(:id => pending_contacts.map(&:receiver_id))
   end
 
   # The set of {Activity activities} in the wall of this {Actor}.
