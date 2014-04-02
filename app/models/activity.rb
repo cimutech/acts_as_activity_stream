@@ -49,7 +49,7 @@ class Activity < ActiveRecord::Base
   # Does this {Activity} could be read by an actor
   def can_read_by?(actor)
     return true unless ActsAsActivityStream.sns_type == :custom
-    author.friend_to?(actor)
+    author.has_friend?(actor)
   end
 
   # JSON data of the activable

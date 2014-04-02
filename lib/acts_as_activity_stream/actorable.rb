@@ -19,6 +19,18 @@ module ActsAsActivityStream
 
         alias_method :make_friend, :follow
 
+        def unfollow(subject)
+          actor.unfollow(subject.actor)
+        end
+
+        def unfriend(subject)
+          actor.unfriend(subject.actor)
+        end
+
+        def has_friend?(subject)
+          actor.has_friend?(subject.actor)
+        end
+
         def followers
           actor.followers.map(&:actorable)
         end

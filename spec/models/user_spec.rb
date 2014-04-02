@@ -34,7 +34,7 @@ describe User do
         @user_2.pending_friends.first.id.should == @user_1.id
       end
 
-      context 'reply a follower' do
+      describe 'reply a follower' do
         before { @user_2.follow(@user_1) }
 
         it "should be friend to each other" do
@@ -43,7 +43,36 @@ describe User do
           @user_1.should have(1).friends
           @user_2.friends.first.id.should == @user_1.id
         end
+
+        describe 'unfriend' do
+          it 'sns like facebook will bolck all contacts' do
+            @user_1.unfriend(@user_2)
+            @user_1.should have(0).followings
+            @user_2.should have(0).followers
+            @user_2.should have(0).followings
+            @user_1.should have(0).followers
+          end
+
+          it 'sns like twitter only block one contact' do
+            ActsAsActivityStream.sns_type = :follow
+            @user_1.unfriend(@user_2)
+            @user_1.should have(0).followings
+            @user_2.should have(0).followers
+            @user_2.should have(1).followings
+            @user_1.should have(1).followers
+          end
+        end
       end
+
+      describe 'unfollow' do
+        before { @user_1.unfollow(@user_2) }
+
+        it "should not follow anymore" do
+          @user_1.should have(0).followings
+          @user_2.should have(0).followers
+        end
+      end
+
     end
 
     context 'suggestions list' do

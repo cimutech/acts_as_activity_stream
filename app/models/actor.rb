@@ -90,7 +90,7 @@ class Actor < ActiveRecord::Base
   end
 
   # check if an actor is a friend to current actor
-  def friend_to?(actor)
+  def has_friend?(actor)
     return true if actor == self
     !self.contact_to!(actor).blocked && !actor.contact_to!(self).blocked
   end
@@ -111,6 +111,19 @@ class Actor < ActiveRecord::Base
     contact
   end
   alias_method :make_friend, :follow
+
+  # remove friendship between two actor
+  def unfollow(actor)
+    contact = contact_to!(actor)
+    contact.update_column(:blocked, true)
+    contact
+  end
+
+  # remove friendship between two actor
+  def unfriend(actor)
+    unfollow(actor)
+    actor.unfollow(self) if ActsAsActivityStream.sns_type == :custom
+  end
 
   # actor who share activity to this actor
   # with sns like twitter, followings will be the sharers
