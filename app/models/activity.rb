@@ -31,12 +31,13 @@ class Activity < ActiveRecord::Base
     Jbuilder.new do |json|
       json.id             id
       json.type           activable_type
+      json.verb           verb
+      json.data           data
+      json.author         author.to_builder.attributes!
       json.likes_count    likes_count
       json.comments_count comments_count
       json.created_at     created_at
       json.updated_at     updated_at
-      json.author         author.to_builder.attributes!
-      json.data           data
     end
   end
 
