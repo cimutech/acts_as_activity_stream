@@ -1,11 +1,8 @@
 # A {Contact} is an ordered pair of {Actor Actors},
-# and therefore two {SocialStream::Models::Subject Subjects}.
 #
-# {Contact Contacts} are created at convenience (in the case of {Actor#suggestions suggestions},
-# for instance), and they do not mean that there is a real link between those two
-# {SocialStream::Models::Subject Subjects}. Link existance is stored as a {Tie}.
-# When Alice adds Bob as contact, a new {Tie} is created with the {Contact} from Alice to
-# Bob and the {Relation} that Alice chose.
+# {Contact Contacts} is a link between two actors
+# Sent a unblocked contact to an actor, means you follow/make friend to this actor.
+# A blocked contact does not mean anything.
 #
 # == Inverse Contacts
 #
@@ -13,7 +10,7 @@
 # Inverse contacts are used to check if contacts are replied, for instance, if Bob added
 # Alice as contact after she did so.
 #
-# Again, the Contact from Bob to Alice must have positive {Tie ties} to be active.
+# Again, the Contact from Bob to Alice must have positive {not blocked} to be active.
 #
 class Contact < ActiveRecord::Base
 
@@ -39,6 +36,7 @@ class Contact < ActiveRecord::Base
 
   scope :not_reflexive, where(arel_table[:sender_id].not_eq(arel_table[:receiver_id]))
 
+  before_save  :validate_self_contact
   after_create :create_reverse_contact
 
   def sender_subject
@@ -65,6 +63,10 @@ class Contact < ActiveRecord::Base
   end
 
   private
+
+  def validate_self_contact
+    errors.add(:sender_id, "is invalid. Should not contact to self!" ) if sender_id == receiver_id
+  end
 
   def create_reverse_contact
     if not inverse_id.present?

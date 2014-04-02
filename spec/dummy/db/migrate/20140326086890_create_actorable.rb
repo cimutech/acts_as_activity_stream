@@ -1,13 +1,6 @@
 class CreateActorable < ActiveRecord::Migration
   def change
 
-    # create_table :avatars, :force => true do |t|
-    #   t.string :logo
-    #   t.references :avatarable, :polymorphic => true
-    #   t.timestamps
-    # end
-    # add_index  :avatars, [:avatarable_type, :avatarable_id]
-
     create_table "users", :force => true do |t|
       t.string   "name"
       t.string   "email",              :default => "",   :null => false
@@ -31,16 +24,5 @@ class CreateActorable < ActiveRecord::Migration
     add_index "users", ["email"], :unique => true
     add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
 
-    # create_table "groups", :force => true do |t|
-    #   t.integer  "actor_id"
-    #   t.string   "name"
-    #   t.string   "slug"
-    #   t.text     "description"
-    #   t.datetime "created_at"
-    #   t.datetime "updated_at"
-    # end
-
-    # add_index "groups", ["actor_id"], :name => "index_groups_on_actor_id"
-    # add_index "groups", ["slug"], :unique => true
   end
 end

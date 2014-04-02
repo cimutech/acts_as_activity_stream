@@ -19,6 +19,14 @@ class User < ActiveRecord::Base
     v.validates_length_of       :password, :within => Devise.password_length, :allow_blank => true
   end
 
+  def to_builder
+    Jbuilder.new do |json|
+      json.id    id
+      json.name  name
+      json.email email
+    end
+  end
+
   protected
 
   # From devise

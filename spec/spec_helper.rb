@@ -19,3 +19,29 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 # Load Factories
 require 'factory_girl'
 Dir["#{File.dirname(__FILE__)}/factories/*.rb", "#{File.dirname(__FILE__)}/../*/spec/factories/*.rb"].each {|f| require f}
+
+require 'coveralls'
+Coveralls.wear_merged!
+
+RSpec.configure do |config|
+
+  config.color_enabled = true
+
+  # If you're not using ActiveRecord, or you'd prefer not to run each of your
+  # examples within a transaction, remove the following line or assign false
+  # instead of true.
+  config.use_transactional_fixtures = false
+
+  config.before :suite do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before :each do
+    DatabaseCleaner.clean
+  end
+
+  config.after :each do
+    ActsAsActivityStream.sns_type = :custom
+    DatabaseCleaner.clean
+  end
+end

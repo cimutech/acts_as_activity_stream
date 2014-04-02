@@ -1,28 +1,26 @@
 # An {Actor} represents a social entity. This means {User individuals},
-# but also {Group groups}, departments, organizations even nations or states.
+# but also groups, departments, organizations even nations or states.
 #
-# Actors are the nodes of a social network. Two actors are linked by {Tie Ties}. The
-# type of a {Tie} is a {Relation}. Each actor can define and customize their relations own
-# {Relation Relations}.
+# Actors are the nodes of a social network. Two actors are linked by {contact}.
 #
-# Every {Actor} has an Avatar, a {Profile} with personal or group information, contact data, etc.
-#
-# {Actor Actors} perform {ActivityAction actions} (like, suscribe, etc.) on
-# {ActivityObject activity objects} ({Post posts}, {Comment commments}, pictures, events..)
-#
-# = Actor subtypes
-# An actor subtype is called a {SocialStream::Models::Subject Subject}.
-# {SocialStream::Base} provides two actor subtypes, {User} and {Group}, but the
-# application developer can define as many actor subtypes as required.
-# Besides including the {SocialStream::Models::Subject} module, Actor subtypes
-# must added to +config/initializers/social_stream.rb+
-#
+# {Actor Actors} post the {Activable}(like post), and send specified activity by {Activable}.
 #
 class Actor < ActiveRecord::Base
 
-  # acts_as_activable
-
   belongs_to :actorable, polymorphic: true
+
+  has_many :comments,
+           :class_name  => 'Comment',
+           :foreign_key => 'sender_id',
+           :dependent   => :destroy
+  has_many :posts,
+           :class_name  => 'Post',
+           :foreign_key => 'sender_id',
+           :dependent   => :destroy
+  has_many :likes,
+           :class_name  => 'Like',
+           :foreign_key => 'sender_id',
+           :dependent   => :destroy
 
   has_many :sent_contacts,
            :class_name  => 'Contact',
@@ -38,22 +36,38 @@ class Actor < ActiveRecord::Base
            :through => :received_contacts,
            :uniq => true
 
+  has_many :unblocked_senders,
+           :through => :received_contacts,
+           :source  => :sender,
+           :conditions => { "contacts.blocked" => false },
+           :uniq => true
+
   has_many :receivers,
            :through => :sent_contacts,
+           :uniq => true
+
+  has_many :unblocked_receivers,
+           :through => :sent_contacts,
+           :source  => :receiver,
+           :conditions => { "contacts.blocked" => false },
            :uniq => true
 
   has_many :authored_activities,
            :class_name  => "Activity",
            :foreign_key => :author_id,
            :dependent   => :destroy
-  has_many :owned_activities,
-           :class_name  => "Activity",
-           :foreign_key => :owner_id,
-           :dependent   => :destroy
 
   scope :with_type, lambda { |type|
-    where(:avatarable_type => type)
+    where(:actorable_type => type)
   }
+
+  def to_builder
+    Jbuilder.new do |json|
+      json.id             id
+      json.type           actorable_type
+      json.subject        actorable.to_builder.attributes!
+    end
+  end
 
   def subject
     actorable
@@ -61,18 +75,24 @@ class Actor < ActiveRecord::Base
 
   # follows
   def followers
-    senders
+    unblocked_senders
   end
 
   # followings
   def followings
-    receivers
+    unblocked_receivers
   end
 
   # friends
   # make contact to each other
   def friends
-    senders.where("actors.id in (?)", receivers)
+    unblocked_senders.where("actors.id in (?)", unblocked_receivers)
+  end
+
+  # check if an actor is a friend to current actor
+  def friend_to?(actor)
+    return true if actor == self
+    !self.contact_to!(actor).blocked && !actor.contact_to!(self).blocked
   end
 
   # Return a contact to actor.
@@ -81,27 +101,33 @@ class Actor < ActiveRecord::Base
   end
 
   # Return a contact to subject. Create it if it does not exist
-  def contact_to!(actor, blocked = true)
-    contact_to(actor) ||
-      sent_contacts.create!(receiver: actor, blocked: blocked)
+  def contact_to!(actor)
+    contact_to(actor) || sent_contacts.create!(receiver: actor)
   end
 
   def follow(actor)
-    contact_to!(actor, true)
+    contact = contact_to!(actor)
+    contact.update_column(:blocked, false)
+    contact
   end
   alias_method :make_friend, :follow
 
-  # The {Contact} of this {Actor} to self (totally close!)
-  def self_contact
-    contact_to!(self, true)
+  # actor who share activity to this actor
+  # with sns like twitter, followings will be the sharers
+  # with sns like facebook, friends will be the sharers
+  # and of course, sharers should include actor self
+  def sharer_ids
+    if ActsAsActivityStream.sns_type == :follow
+      followings.map(&:id) + [self.id]
+    else
+      friends.map(&:id) + [self.id]
+    end
   end
-
-  alias_method :ego_contact, :self_contact
 
   # An array with the ids of {Actor Actors} followed by this {Actor}
   # plus the id from this {Actor}
   def following_and_self_ids
-    sender_ids + [ id ]
+    unblocked_receiver_ids + [ id ]
   end
 
   # By now, it returns a suggested {Contact} to another {Actor}
@@ -112,13 +138,17 @@ class Actor < ActiveRecord::Base
     candidates = Actor.where(Actor.arel_table[:id].not_in(avoid_ids))
     candidates = candidates.with_type(type) unless type.nil?
 
-    size.times.map {
-      candidates.delete_at rand(candidates.size)
-    }
+    if candidates.size > size
+      size.times.map {
+        candidates.delete_at rand(candidates.size)
+      }
+    else
+      candidates
+    end
   end
 
   def pending_contacts
-    received_contacts.not_reflexive.pending
+    sent_contacts.not_reflexive.pending
   end
 
   def pending_contacts?
@@ -126,59 +156,41 @@ class Actor < ActiveRecord::Base
   end
 
   def pending_friends
-    pending_contacts.map(&:sender)
+    pending_contacts.map(&:receiver)
   end
 
   # The set of {Activity activities} in the wall of this {Actor}.
   #
-  # There are two types of walls:
+  # There are two default types of walls:
   # home:: includes all the {Activity activities} from this {Actor} and their followed {Actor actors}
-  #             See {Permission permissions} for more information on the following support
+  #
   # profile:: The set of activities in the wall profile of this {Actor}, it includes only the
-  #           activities from the ties of this actor that can be read by the subject
+  #           activities from this actor
   #
   # Options:
-  # :for:: the subject that is accessing the wall
-  # :relation:: show only activities that are attached at this relation level. For example,
-  #             the wall for members of the group.
+  # :actor_ids:: activities from specify actors
   #
-  def wall(type, options = {})
-    options[:for] = self if type == :home
-
-    wall =
-      Activity.
-        select("DISTINCT activities.*").
-        roots.
-        includes(:author, :user_author, :owner, :activity_objects, :activity_verb, :relations)
-
+  def wall(type = nil, options = {})
     actor_ids =
       case type
       when :home
-        following_actor_and_self_ids
+        sharer_ids
       when :profile
         id
       else
         if options[:actor_ids].nil?
           raise "Unknown type of wall without actor_ids: #{ type }"
         else
-          options[:actor_ids]
+          options[:actor_ids].reject{|a| if not sharer_ids.include?(a) then a end}
         end
       end
-
-    wall = wall.authored_or_owned_by(actor_ids)
-
-    # Authentication
-    wall = wall.shared_with(options[:for])
-
-    wall = wall.order("id desc")
+    wall = Activity.includes(:activable, :author => :actorable).authored_by(actor_ids).order("id desc")
   end
 
   # Use slug as parameter
   def to_param
     slug
   end
-
-  private
 
   def unread_messages_count
     mailbox.inbox(:unread => true).count(:id, :distinct => true)

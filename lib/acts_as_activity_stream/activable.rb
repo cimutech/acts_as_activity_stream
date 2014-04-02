@@ -1,14 +1,16 @@
 module ActsAsActivityStream
   module Activable
-    def acts_as_activable(options = {})
+    def acts_as_activity
       class_eval do
-        has_one :activities, as: :activable, :dependent => :destroy
+        has_many :activities, as: :activable, :dependent => :destroy
 
-        def send_activity(author_id, owner_id, verb = "", notification = false)
-          activities.create!(verb: verb, author_id: author_id, owner_id: owner_id)
+        def to_builder
+          Jbuilder.new do |json|
+          end
         end
 
-        def send_notification
+        def send_activity(author_id, verb = "", notification = false)
+          activities.create!(verb: verb, author_id: author_id)
         end
 
         # return activity data with verb for activity
@@ -23,20 +25,8 @@ module ActsAsActivityStream
         end
 
         def default_activity_data(verb = nil)
-          case verb
-          when 'post'
-            {id: id, title: send("title"), description: send("description")}
-          when 'like'
-            {id: id, title: send("title")}
-          else
-            raise "Invalid verb"
-          end
+          verb.nil? ? raise("Invalid verb") : to_builder.attributes!
         end
-      end
-      target_method_name = options[:target].nil? ? "self" : options[:target].to_s
-
-      define_method "target" do
-         send(target_method_name)
       end
     end
 

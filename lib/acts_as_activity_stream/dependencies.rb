@@ -1,4 +1,4 @@
 
-# Messages
-require 'mailboxer'
+# Json
+require 'jbuilder'
 

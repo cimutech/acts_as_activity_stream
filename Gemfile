@@ -13,5 +13,11 @@ gemspec
 # To use debugger
 # gem 'debugger'
 
-gem 'devise', '~> 2.1.4'
-gem 'pry-rails'
+group :test do
+  gem 'devise', '~> 2.1.4'
+  gem 'pry-rails'
+  gem 'pry-nav'
+  gem 'coveralls', :require => false
+  gem 'database_cleaner'
+  gem "ammeter"
+end

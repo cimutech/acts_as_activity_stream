@@ -2,25 +2,15 @@ module ActsAsActivityStream
   module TestHelpers
     class Migration
       def initialize
-        # require_old_migration 'acts-as-taggable-on', 'lib/generators/acts_as_taggable_on/migration/templates/active_record/migration'
-        @mailboxer_migration = find_migration 'mailboxer'
         @base_migration = find_migration 'acts_as_activity_stream'
       end
 
       def up
-        ActiveRecord::Migrator.migrate @mailboxer_migration
-
         # Run any available migration
         ActiveRecord::Migrator.migrate @base_migration
       end
 
       def down
-        begin
-          ActiveRecord::Migrator.migrate @base_migration, 0
-        rescue
-          puts "WARNING: Social Stream Base failed to rollback"
-        end
-
         begin
           ActiveRecord::Migrator.migrate @mailboxer_migration, 0
         rescue
