@@ -3,8 +3,8 @@ class CreateActsAsActivityStream < ActiveRecord::Migration
     create_table :activities, :force => true do |t|
       t.references :activable, :polymorphic => true
       t.integer    :author_id
-      t.integer    :comments_count, :integer, :default => 0
-      t.integer    :likes_count, :integer, :default => 0
+      t.integer    :comments_count, :default => 0
+      t.integer    :likes_count, :default => 0
       t.string     :verb
       t.timestamps
     end

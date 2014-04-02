@@ -17,16 +17,15 @@ ActiveRecord::Schema.define(:version => 20140326086890) do
     t.integer  "activable_id"
     t.string   "activable_type"
     t.integer  "author_id"
-    t.integer  "owner_id"
-    t.integer  "comment_count",  :default => 0
-    t.integer  "integer",        :default => 0
+    t.integer  "comments_count", :default => 0
+    t.integer  "likes_count",    :default => 0
     t.string   "verb"
     t.datetime "created_at",                    :null => false
     t.datetime "updated_at",                    :null => false
   end
 
+  add_index "activities", ["activable_type", "activable_id"], :name => "index_activities_on_activable_type_and_activable_id"
   add_index "activities", ["author_id"], :name => "index_activities_on_author_id"
-  add_index "activities", ["owner_id"], :name => "index_activities_on_owner_id"
 
   create_table "actors", :force => true do |t|
     t.integer  "actorable_id"
@@ -48,6 +47,10 @@ ActiveRecord::Schema.define(:version => 20140326086890) do
     t.datetime "updated_at",                       :null => false
   end
 
+  add_index "comments", ["commentable_type", "commentable_id"], :name => "index_comments_on_commentable_type_and_commentable_id"
+  add_index "comments", ["parent_id"], :name => "index_comments_on_parent_id"
+  add_index "comments", ["sender_id"], :name => "index_comments_on_sender_id"
+
   create_table "contacts", :force => true do |t|
     t.integer  "sender_id",                     :null => false
     t.integer  "receiver_id",                   :null => false
@@ -58,9 +61,29 @@ ActiveRecord::Schema.define(:version => 20140326086890) do
   end
 
   add_index "contacts", ["blocked"], :name => "index_contacts_on_blocked"
-  add_index "contacts", ["inverse_id"], :name => "index_contacts_on_inverse_id"
   add_index "contacts", ["receiver_id"], :name => "index_contacts_on_receiver_id"
   add_index "contacts", ["sender_id", "receiver_id"], :name => "index_contacts_on_sender_id_and_receiver_id", :unique => true
+
+  create_table "likes", :force => true do |t|
+    t.integer  "likable_id"
+    t.string   "likable_type"
+    t.integer  "sender_id",    :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "likes", ["likable_type", "likable_id"], :name => "index_likes_on_likable_type_and_likable_id", :unique => true
+  add_index "likes", ["sender_id"], :name => "index_likes_on_sender_id"
+
+  create_table "posts", :force => true do |t|
+    t.string   "title",      :default => ""
+    t.text     "body",       :default => ""
+    t.integer  "sender_id",                  :null => false
+    t.datetime "created_at",                 :null => false
+    t.datetime "updated_at",                 :null => false
+  end
+
+  add_index "posts", ["sender_id"], :name => "index_posts_on_sender_id"
 
   create_table "users", :force => true do |t|
     t.string   "name"
