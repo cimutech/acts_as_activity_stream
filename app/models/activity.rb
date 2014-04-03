@@ -55,8 +55,10 @@ class Activity < ActiveRecord::Base
   # JSON data of the activable
   # This is the core part of viewing an activity
   def data
-    activable.activity_data(verb) ||
-      activable.default_activity_data(verb)
+    if activable
+      activable.activity_data(verb) ||
+        activable.default_activity_data(verb)
+    end
   end
 
 end
