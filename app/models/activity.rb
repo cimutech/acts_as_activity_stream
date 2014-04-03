@@ -33,7 +33,7 @@ class Activity < ActiveRecord::Base
       json.type           activable_type
       json.verb           verb
       json.data           data
-      json.author         author.to_builder.attributes!
+      json.author         author.actorable.to_builder.attributes!
       json.likes_count    likes_count
       json.comments_count comments_count
       json.created_at     created_at
