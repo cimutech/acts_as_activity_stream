@@ -32,7 +32,11 @@ module ActsAsActivityStream
         end
 
         def friends(type = nil)
-          friend_actors(type).map(&:actorable)
+          type ||= self.class.name
+          actors = self.friend_actors
+          self.class.joins{actor}.where{
+            (actor.id.in actors.select("actors.id"))
+          }
         end
 
         def pending_friend_actors(type = nil)
@@ -40,7 +44,11 @@ module ActsAsActivityStream
         end
 
         def pending_friends(type = nil)
-          pending_friend_actors.map(&:actorable)
+          type ||= self.class.name
+          actors = self.pending_friend_actors
+          self.class.joins{actor}.where{
+            (actor.id.in actors.select("actors.id"))
+          }
         end
 
         def has_friend?(subject)
@@ -52,7 +60,11 @@ module ActsAsActivityStream
         end
 
         def followers(type = nil)
-          follower_actors(type).map(&:actorable)
+          type ||= self.class.name
+          actors = self.follower_actors
+          self.class.joins{actor}.where{
+            (actor.id.in actors.select("actors.id"))
+          }
         end
 
         def has_follower?(subject)
@@ -64,7 +76,11 @@ module ActsAsActivityStream
         end
 
         def followings(type = nil)
-          following_actors(type).map(&:actorable)
+          type ||= self.class.name
+          actors = self.following_actors
+          self.class.joins{actor}.where{
+            (actor.id.in actors.select("actors.id"))
+          }
         end
 
         def has_following?(subject)

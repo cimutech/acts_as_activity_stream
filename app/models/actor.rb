@@ -96,9 +96,11 @@ class Actor < ActiveRecord::Base
   # friends
   # make contact to each other
   def friends
-    receivers.joins{received_contacts.inverse}.where{
+    current_id = self.id
+    Actor.joins{received_contacts.inverse}.where{
       (received_contacts.inverse.blocked.eq false) &
-      (received_contacts.blocked.eq false)
+      (received_contacts.blocked.eq false) &
+      (received_contacts.sender_id.eq current_id)
     }
   end
 
