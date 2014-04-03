@@ -88,16 +88,18 @@ module ActsAsActivityStream
         end
 
         # return relationship another {user} or other actor
-        # 1: friend 2: follower 3: following 4: no contact
+        # -1: self 0: friend 1: follower 2: following 3: no contact
         def relationship(another)
-          if has_friend?(another)
-            return 1
+          if self == another
+            return -1
+          elsif has_friend?(another)
+            return 0
           elsif has_follower?(another)
-            return 2
+            return 1
           elsif has_following?(another)
-            return 3
+            return 2
           else
-            return 4
+            return 3
           end
         end
 
