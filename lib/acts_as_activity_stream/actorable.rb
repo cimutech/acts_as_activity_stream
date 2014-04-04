@@ -106,7 +106,10 @@ module ActsAsActivityStream
         # return suggestion friend
         # type of actor, default is current class type
         def suggestions(type = nil, size = 3, avoid_actor_ids = [])
-          actor.suggestions(type || self.class.name, size, avoid_actor_ids).map(&:actorable)
+          actors = actor.suggestions(type || self.class.name, size, avoid_actor_ids)
+          self.class.joins{actor}.where{
+            (actor.id.in actors.select("actors.id"))
+          }
         end
 
         # post a post with body data
@@ -136,6 +139,12 @@ module ActsAsActivityStream
 
         def wall(type, options = {})
           actor.wall(type, options)
+        end
+
+        #mailboxer
+
+        def mailbox
+          actor.mailbox
         end
 
       end
