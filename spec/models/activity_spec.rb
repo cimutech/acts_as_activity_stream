@@ -19,7 +19,7 @@ describe Activity do
     it{ should_not be_nil }
     specify{ @json["id"] == @post_2.activity.id }
     specify{ @json["type"] == "post" }
-    specify{ @json["data"]["id"] == @post_2.id }
+    specify{ @json["target"]["id"] == @post_2.id }
   end
 
   context "counter" do
@@ -39,5 +39,9 @@ describe Activity do
       @post_2.activity.update_column(:verb, nil)
       lambda{ @post_2.activity.data }.should raise_error
     end
+  end
+
+  it "should belongs to activable" do
+    @post_2.activity.post.should eq @post_2
   end
 end

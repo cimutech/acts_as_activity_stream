@@ -7,6 +7,12 @@ describe User do
     @user_3 = FactoryGirl.create(:user)
   end
 
+  describe "actor belongs to actorable" do
+    it "should have user method" do
+      @user_1.actor.user.should == @user_1
+    end
+  end
+
   describe "friendship" do
     context 'self contact' do
       it "should be invalid" do

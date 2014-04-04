@@ -17,6 +17,10 @@ class Activity < ActiveRecord::Base
   has_many :comments, as: :commentable, dependent: :destroy
   has_many :likes, as: :likable, dependent: :destroy
 
+  ActsAsActivityStream.activity_types.each do |type|
+    belongs_to type.to_sym, foreign_key: :activable_id, class_name: type.to_s.camelize
+  end
+
   scope :authored_by, lambda { |actor_id|
     where(:author_id => actor_id)
   }

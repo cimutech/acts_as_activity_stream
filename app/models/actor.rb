@@ -61,6 +61,10 @@ class Actor < ActiveRecord::Base
     where(:actorable_type => type.to_s.camelize) unless type.nil?
   }
 
+  ActsAsActivityStream.actor_types.each do |type|
+    belongs_to type.to_sym, foreign_key: :actorable_id, class_name: type.to_s.camelize
+  end
+
   def to_builder
     Jbuilder.new do |json|
       json.id             id

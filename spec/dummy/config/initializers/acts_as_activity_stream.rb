@@ -6,7 +6,7 @@ ActsAsActivityStream.setup do |config|
   # config.sns_type = :custom
 
   # add the extra actor types
-  # config.actor_types += [:user]
+  config.actor_types += [:user]
 
   # add the extra activity types
   # config.activity_types += [:my_activity]
