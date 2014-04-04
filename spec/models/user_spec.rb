@@ -89,6 +89,8 @@ describe User do
       it "should avoid the followings" do
         @user_1.follow(@user_2)
         @user_1.suggestions("User", 5).size.should == 1
+        @user_1.suggestions("User", 5, []).size.should == 1
+        @user_1.suggestions("User", 5, [@user_3.id]).size.should == 0
       end
     end
   end

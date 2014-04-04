@@ -35,7 +35,7 @@ module ActsAsActivityStream
           type ||= self.class.name
           actors = self.friend_actors
           self.class.joins{actor}.where{
-            (actor.id.in actors.select("actors.id"))
+            (actor.id.in actors.select{id})
           }
         end
 
@@ -47,7 +47,7 @@ module ActsAsActivityStream
           type ||= self.class.name
           actors = self.pending_friend_actors
           self.class.joins{actor}.where{
-            (actor.id.in actors.select("actors.id"))
+            (actor.id.in actors.select{id})
           }
         end
 
@@ -63,7 +63,7 @@ module ActsAsActivityStream
           type ||= self.class.name
           actors = self.follower_actors
           self.class.joins{actor}.where{
-            (actor.id.in actors.select("actors.id"))
+            (actor.id.in actors.select{id})
           }
         end
 
@@ -79,7 +79,7 @@ module ActsAsActivityStream
           type ||= self.class.name
           actors = self.following_actors
           self.class.joins{actor}.where{
-            (actor.id.in actors.select("actors.id"))
+            (actor.id.in actors.select{id})
           }
         end
 
@@ -108,7 +108,7 @@ module ActsAsActivityStream
         def suggestions(type = nil, size = 3, avoid_actor_ids = [])
           actors = actor.suggestions(type || self.class.name, size, avoid_actor_ids)
           self.class.joins{actor}.where{
-            (actor.id.in actors.select("actors.id"))
+            (actor.id.in actors.select{id})
           }
         end
 
