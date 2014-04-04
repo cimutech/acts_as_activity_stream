@@ -128,15 +128,16 @@ module ActsAsActivityStream
           activity.likes.create!(sender_id: actor.id)
         end
 
-        def comment(activity, body)
+        def comment(activity, body, parent_id =  nil)
           activity = Activity.find(activity) if activity.is_a?(Integer)
           return nil unless activity.can_read_by?(actor)
-          activity.comments.create!(sender_id: actor.id, body: body)
+          activity.comments.create!(sender_id: actor.id, body: body, parent_id: parent_id)
         end
 
         def wall(type, options = {})
           actor.wall(type, options)
         end
+
       end
 
     end
