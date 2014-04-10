@@ -25,7 +25,7 @@ module ActsAsActivityStream
         end
 
         def default_activity_data(verb = nil)
-          verb.nil? ? raise("Invalid verb") : to_builder.attributes!
+          to_builder.attributes!
         end
       end
     end
