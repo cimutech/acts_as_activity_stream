@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = ActsAsActivityStream::VERSION
   s.authors     = ["chen qing hua"]
   s.email       = ["chenqh@cimu.com.cn"]
-  s.homepage    = "TODO"
+  s.homepage    = "https://github.com/cimutech/acts_as_activity_stream"
   s.summary     = "Basic features to build a social network"
   s.description = "ActsAsActivityStream is a Ruby on Rails engine providing social network with activity streams. "
 
