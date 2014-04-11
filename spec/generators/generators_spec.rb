@@ -13,11 +13,10 @@ describe ActsAsActivityStream::InstallGenerator do
   }
 
   def cleanup_destination_root
-    # FileUtils.rm_rf destination_root
+    FileUtils.rm_rf destination_root
   end
 
   describe 'generator' do
-    before(:all) { arguments %w(activity_stream)}
     before {
       run_generator
     }
