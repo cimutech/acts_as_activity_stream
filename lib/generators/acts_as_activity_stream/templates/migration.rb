@@ -33,7 +33,7 @@ class CreateActsAsActivityStream < ActiveRecord::Migration
 
     create_table :posts, :force => true do |t|
       t.string     :title, :default => ""
-      t.text       :body, :default => ""
+      t.text       :body, :null => false
       t.integer    :sender_id, :null => false
       t.timestamps
     end
@@ -53,7 +53,7 @@ class CreateActsAsActivityStream < ActiveRecord::Migration
     create_table :comments, :force => true do |t|
       t.references :commentable, :polymorphic => true
       t.string     :title, :default => ""
-      t.text       :body, :default => ""
+      t.text       :body, :null => false
       t.integer    :sender_id, :null => false
       t.integer    :parent_id
       t.timestamps
