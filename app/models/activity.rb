@@ -65,4 +65,8 @@ class Activity < ActiveRecord::Base
     end
   end
 
+  def self.timeline(sender_ids)
+    Activity.includes(:activable, :author => :actorable).authored_by(sender_ids).order("id desc")
+  end
+
 end
