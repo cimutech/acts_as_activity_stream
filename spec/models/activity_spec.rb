@@ -35,9 +35,9 @@ describe Activity do
     it "should be valid with right verb" do
       @post_2.activity.data.should_not be_nil
     end
-    it "should raise error with nil verb" do
+    it "should be valid with nil verb" do
       @post_2.activity.update_column(:verb, nil)
-      lambda{ @post_2.activity.data }.should raise_error
+      @post_2.activity.data.should_not be_nil
     end
   end
 

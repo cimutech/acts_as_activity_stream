@@ -141,12 +141,6 @@ module ActsAsActivityStream
           actor.wall(type, options)
         end
 
-        #mailboxer
-
-        def mailbox
-          actor.mailbox
-        end
-
       end
 
     end

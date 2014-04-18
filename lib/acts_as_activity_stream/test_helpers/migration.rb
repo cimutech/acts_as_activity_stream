@@ -12,11 +12,10 @@ module ActsAsActivityStream
 
       def down
         begin
-          ActiveRecord::Migrator.migrate @mailboxer_migration, 0
+          ActiveRecord::Migrator.migrate @base_migration, 0
         rescue
-          puts "WARNING: Mailboxer migration failed to rollback"
+          puts "WARNING: Social Stream Base failed to rollback"
         end
-
       end
 
       protected

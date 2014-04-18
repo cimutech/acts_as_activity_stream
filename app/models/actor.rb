@@ -219,12 +219,4 @@ class Actor < ActiveRecord::Base
     wall = Activity.includes(:activable, :author => :actorable).authored_by(actor_ids).order("id desc")
   end
 
-  # Use slug as parameter
-  def to_param
-    slug
-  end
-
-  def unread_messages_count
-    mailbox.inbox(:unread => true).count(:id, :distinct => true)
-  end
 end
