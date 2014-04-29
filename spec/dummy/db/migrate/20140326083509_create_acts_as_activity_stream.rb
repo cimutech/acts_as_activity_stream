@@ -30,6 +30,7 @@ class CreateActsAsActivityStream < ActiveRecord::Migration
     add_index :contacts, [:sender_id, :receiver_id], :unique => true
     add_index :contacts, :receiver_id
     add_index :contacts, :blocked
+    add_index :contacts, :inverse_id
 
     create_table :posts, :force => true do |t|
       t.string     :title, :default => ""
