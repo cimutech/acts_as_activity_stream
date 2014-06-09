@@ -33,7 +33,7 @@ module ActsAsActivityStream
 
         def friends(type = nil)
           type ||= self.class.name
-          actor_ids = self.friend_actors.map(&:id)
+          actor_ids = self.friend_actors(type).map(&:id)
           self.class.joins{actor}.where{
             (actor.id.in actor_ids)
           }
@@ -45,7 +45,19 @@ module ActsAsActivityStream
 
         def pending_friends(type = nil)
           type ||= self.class.name
-          actor_ids = self.pending_friend_actors.map(&:id)
+          actor_ids = self.pending_friend_actors(type).map(&:id)
+          self.class.joins{actor}.where{
+            (actor.id.in actor_ids)
+          }
+        end
+
+        def requested_friend_actors(type = nil)
+          actor.requested_friends.with_type(type)
+        end
+
+        def requested_friends(type = nil)
+          type ||= self.class.name
+          actor_ids = self.requested_friend_actors(type).map(&:id)
           self.class.joins{actor}.where{
             (actor.id.in actor_ids)
           }
@@ -61,7 +73,7 @@ module ActsAsActivityStream
 
         def followers(type = nil)
           type ||= self.class.name
-          actor_ids = self.follower_actors.map(&:id)
+          actor_ids = self.follower_actors(type).map(&:id)
           self.class.joins{actor}.where{
             (actor.id.in actor_ids)
           }
@@ -77,7 +89,7 @@ module ActsAsActivityStream
 
         def followings(type = nil)
           type ||= self.class.name
-          actor_ids = self.following_actors.map(&:id)
+          actor_ids = self.following_actors(type).map(&:id)
           self.class.joins{actor}.where{
             (actor.id.in actor_ids)
           }

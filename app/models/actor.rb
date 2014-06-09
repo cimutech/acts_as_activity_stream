@@ -179,16 +179,22 @@ class Actor < ActiveRecord::Base
     end
   end
 
-  def pending_contacts
-    sent_contacts.not_reflexive.pending
-  end
-
-  def pending_contacts?
-    pending_contacts_count > 0
-  end
-
   def pending_friends
-    Actor.where(:id => pending_contacts.map(&:receiver_id))
+    current_id = self.id
+    Actor.joins{received_contacts.inverse}.where{
+      (received_contacts.inverse.blocked.eq false) &
+      (received_contacts.blocked.eq true) &
+      (received_contacts.sender_id.eq current_id)
+    }
+  end
+
+  def requested_friends
+    current_id = self.id
+    Actor.joins{received_contacts.inverse}.where{
+      (received_contacts.inverse.blocked.eq true) &
+      (received_contacts.blocked.eq false) &
+      (received_contacts.sender_id.eq current_id)
+    }
   end
 
   # The set of {Activity activities} in the wall of this {Actor}.

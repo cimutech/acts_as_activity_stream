@@ -40,6 +40,11 @@ describe User do
         @user_2.pending_friends.first.id.should == @user_1.id
       end
 
+      it "should have requested_friends" do
+        @user_1.should have(1).requested_friends
+        @user_1.requested_friends.first.id.should == @user_2.id
+      end
+
       describe 'reply a follower' do
         before { @user_2.follow(@user_1) }
 
