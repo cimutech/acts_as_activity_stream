@@ -14,10 +14,9 @@ gemspec
 # gem 'debugger'
 
 group :test do
-  gem 'devise', '~> 2.1.4'
   gem 'pry-rails'
   gem 'pry-nav'
   gem 'coveralls', :require => false
   gem 'database_cleaner'
-  gem "ammeter"
+  gem 'ammeter', '~> 0.2.9'
 end
