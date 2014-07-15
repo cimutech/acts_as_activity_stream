@@ -21,9 +21,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sqlite3"
 
   # To use Jbuilder templates for JSON
-  s.add_runtime_dependency('jbuilder', '~> 2.0.4')
+  s.add_runtime_dependency 'jbuilder'
   # To use activerecord hack
-  s.add_runtime_dependency('squeel', '~> 1.1.1')
+  #s.add_runtime_dependency 'squeel'
   # Specs
   s.add_development_dependency('rspec-rails', '~> 2.8.1')
   # Fixtures
