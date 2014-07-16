@@ -16,14 +16,12 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"]
 
-  s.add_dependency "rails", "> 3.2.13"
-
   s.add_development_dependency "sqlite3"
 
   # To use Jbuilder templates for JSON
-  s.add_runtime_dependency 'jbuilder'
+  s.add_runtime_dependency('jbuilder', '~> 2.1.2')
   # To use activerecord hack
-  #s.add_runtime_dependency 'squeel'
+  # s.add_runtime_dependency('squeel', '~> 1.1.1')
   # Specs
   s.add_development_dependency('rspec-rails', '~> 2.8.1')
   # Fixtures

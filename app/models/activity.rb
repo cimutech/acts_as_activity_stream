@@ -21,13 +21,9 @@ class Activity < ActiveRecord::Base
     belongs_to type.to_sym, foreign_key: :activable_id, class_name: type.to_s.camelize
   end
 
-  scope :authored_by, lambda { |actor_id|
-    where(:author_id => actor_id)
-  }
+  scope :authored_by, -> (actor_id) { where(:author_id => actor_id) }
 
-  scope :with_verb, lambda {|verb|
-    where(:verb => verb)
-  }
+  scope :with_verb, -> (verb) { where(:verb => verb) }
 
   validates_presence_of :author_id
 

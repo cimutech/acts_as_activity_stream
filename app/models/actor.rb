@@ -33,32 +33,30 @@ class Actor < ActiveRecord::Base
            :dependent   => :destroy
 
   has_many :senders,
-           :through => :received_contacts,
-           :uniq => true
+           -> {uniq},
+           :through => :received_contacts
 
-  has_many :unblocked_senders, -> { where( "contacts.blocked = false").uniq(true) },
+
+  has_many :unblocked_senders,
+           -> { where(:"contacts.blocked" => false).uniq },
            :through => :received_contacts,
            :source  => :sender
-           #:uniq => true
 
   has_many :receivers,
-           :through => :sent_contacts,
-           :uniq => true
+           -> {uniq},
+           :through => :sent_contacts
 
   has_many :unblocked_receivers,
-           -> { where("contacts.blocked = false").uniq(true) },
+           -> { where(:"contacts.blocked" => false).uniq },
            :through => :sent_contacts,
            :source  => :receiver
-           #:uniq => true
 
   has_many :authored_activities,
            :class_name  => "Activity",
            :foreign_key => :author_id,
            :dependent   => :destroy
 
-  scope :with_type, lambda { |type|
-    where(:actorable_type => type.to_s.camelize) unless type.nil?
-  }
+  scope :with_type, -> (type) { where(:actorable_type => type.to_s.camelize) unless type.nil?}
 
   ActsAsActivityStream.actor_types.each do |type|
     belongs_to type.to_sym, foreign_key: :actorable_id, class_name: type.to_s.camelize
@@ -100,11 +98,14 @@ class Actor < ActiveRecord::Base
   # make contact to each other
   def friends
     current_id = self.id
-    Actor.joins{received_contacts.inverse}.where{
-      (received_contacts.inverse.blocked.eq false) &
-      (received_contacts.blocked.eq false) &
-      (received_contacts.sender_id.eq current_id)
-    }
+    # received_contacts => contacts, and inverse => inverses_conteacts
+    Actor.joins(:received_contacts => :inverse).where(:contacts => {:blocked => false, :sender_id => current_id},
+                                                      :inverses_contacts => {:blocked => false})
+    # Actor.joins{received_contacts.inverse}.where{
+    #   (received_contacts.inverse.blocked.eq false) &
+    #   (received_contacts.blocked.eq false) &
+    #   (received_contacts.sender_id.eq current_id)
+    # }
   end
 
   # check if an actor is a friend to current actor
@@ -180,20 +181,24 @@ class Actor < ActiveRecord::Base
 
   def pending_friends
     current_id = self.id
-    Actor.joins{received_contacts.inverse}.where{
-      (received_contacts.inverse.blocked.eq false) &
-      (received_contacts.blocked.eq true) &
-      (received_contacts.sender_id.eq current_id)
-    }
+    Actor.joins(:received_contacts => :inverse).where(:contacts => {:blocked => true, :sender_id => current_id},
+                                                      :inverses_contacts => {:blocked => false})
+    # Actor.joins{received_contacts.inverse}.where{
+    #   (received_contacts.inverse.blocked.eq false) &
+    #   (received_contacts.blocked.eq true) &
+    #   (received_contacts.sender_id.eq current_id)
+    # }
   end
 
   def requested_friends
     current_id = self.id
-    Actor.joins{received_contacts.inverse}.where{
-      (received_contacts.inverse.blocked.eq true) &
-      (received_contacts.blocked.eq false) &
-      (received_contacts.sender_id.eq current_id)
-    }
+    Actor.joins(:received_contacts => :inverse).where(:contacts => {:blocked => false, :sender_id => current_id},
+                                                      :inverses_contacts => {:blocked => true})
+    # Actor.joins{received_contacts.inverse}.where{
+    #   (received_contacts.inverse.blocked.eq true) &
+    #   (received_contacts.blocked.eq false) &
+    #   (received_contacts.sender_id.eq current_id)
+    # }
   end
 
   # The set of {Activity activities} in the wall of this {Actor}.

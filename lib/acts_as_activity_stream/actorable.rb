@@ -34,9 +34,7 @@ module ActsAsActivityStream
         def friends(type = nil)
           type ||= self.class.name
           actor_ids = self.friend_actors(type).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         def pending_friend_actors(type = nil)
@@ -46,9 +44,7 @@ module ActsAsActivityStream
         def pending_friends(type = nil)
           type ||= self.class.name
           actor_ids = self.pending_friend_actors(type).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         def requested_friend_actors(type = nil)
@@ -58,9 +54,7 @@ module ActsAsActivityStream
         def requested_friends(type = nil)
           type ||= self.class.name
           actor_ids = self.requested_friend_actors(type).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         def has_friend?(subject)
@@ -74,9 +68,7 @@ module ActsAsActivityStream
         def followers(type = nil)
           type ||= self.class.name
           actor_ids = self.follower_actors(type).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         def has_follower?(subject)
@@ -90,9 +82,7 @@ module ActsAsActivityStream
         def followings(type = nil)
           type ||= self.class.name
           actor_ids = self.following_actors(type).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         def has_following?(subject)
@@ -119,9 +109,7 @@ module ActsAsActivityStream
         # type of actor, default is current class type
         def suggestions(type = nil, size = 3, avoid_actor_ids = [])
           actor_ids = actor.suggestions(type || self.class.name, size, avoid_actor_ids).map(&:id)
-          self.class.joins{actor}.where{
-            (actor.id.in actor_ids)
-          }
+          self.class.joins(:actor).where("actors.id in (?)", actor_ids)
         end
 
         # post a post with body data

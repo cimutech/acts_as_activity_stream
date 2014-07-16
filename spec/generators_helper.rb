@@ -2,6 +2,8 @@ require 'rubygems'
 require "bundler/setup"
 
 require 'rails'
+require 'minitest/autorun'
+
 require 'coveralls'
 Coveralls.wear_merged!
 
