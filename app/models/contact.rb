@@ -19,9 +19,9 @@ class Contact < ActiveRecord::Base
   belongs_to :sender, class_name: "Actor"
   belongs_to :receiver, class_name: "Actor"
 
-  scope :not_blocked, where(blocked: false)
+  scope :not_blocked, -> { where(blocked: false) }
 
-  scope :pending, where(blocked: true)
+  scope :pending, -> { where(blocked: true) }
 
   scope :sent_by, lambda { |s_id| where(sender_id: s_id)}
 
@@ -32,9 +32,9 @@ class Contact < ActiveRecord::Base
           or(arel_table[:receiver_id].eq(a_id)))
   }
 
-  scope :recent, order("contacts.created_at DESC")
+  scope :recent, -> { order("contacts.created_at DESC") }
 
-  scope :not_reflexive, where(arel_table[:sender_id].not_eq(arel_table[:receiver_id]))
+  scope :not_reflexive, -> { where(arel_table[:sender_id].not_eq(arel_table[:receiver_id])) }
 
   before_save  :validate_self_contact
   after_create :create_reverse_contact

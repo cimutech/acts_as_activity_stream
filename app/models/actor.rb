@@ -36,21 +36,20 @@ class Actor < ActiveRecord::Base
            :through => :received_contacts,
            :uniq => true
 
-  has_many :unblocked_senders,
+  has_many :unblocked_senders, -> { where( "contacts.blocked = false").uniq(true) },
            :through => :received_contacts,
-           :source  => :sender,
-           :conditions => { "contacts.blocked" => false },
-           :uniq => true
+           :source  => :sender
+           #:uniq => true
 
   has_many :receivers,
            :through => :sent_contacts,
            :uniq => true
 
   has_many :unblocked_receivers,
+           -> { where("contacts.blocked = false").uniq(true) },
            :through => :sent_contacts,
-           :source  => :receiver,
-           :conditions => { "contacts.blocked" => false },
-           :uniq => true
+           :source  => :receiver
+           #:uniq => true
 
   has_many :authored_activities,
            :class_name  => "Activity",
