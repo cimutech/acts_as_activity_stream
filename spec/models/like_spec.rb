@@ -31,6 +31,11 @@ describe Like do
       @user_1.should have(0).likes
       @post_3.activity.should have(0).likes
     end
+
+    it "can auto increase the counter" do
+      @user_1.like(@post_2.activity).should_not be_nil
+      @post_2.activity.likes_count.should == 1
+    end
   end
 
   context 'sns like twitter' do
@@ -52,6 +57,11 @@ describe Like do
       @user_2.like(@post_3.activity).should_not be_nil
       @user_2.should have(1).likes
       @post_3.activity.should have(1).likes
+    end
+
+    it "can auto increase the counter" do
+      @user_1.like(@post_2.activity).should_not be_nil
+      @post_2.activity.likes_count.should == 1
     end
   end
 

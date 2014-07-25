@@ -21,5 +21,9 @@ describe Post do
     @post.activity.data.should == @post.to_builder
   end
 
+  it "activity should belong to a user" do
+    @post.activity.author.user.should_not be_nil
+  end
+
 end
 

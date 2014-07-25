@@ -14,7 +14,7 @@ gemspec
 # gem 'debugger'
 
 group :test do
-  gem "rails", "~> 4.0.0"
+  gem "rails", "~> 4.1.4"
   gem "minitest"
   gem 'pry-rails'
   gem 'pry-nav'

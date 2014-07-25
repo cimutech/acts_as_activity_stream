@@ -1,7 +1,8 @@
 class Comment < ActiveRecord::Base
 
   belongs_to :sender, :class_name  => 'Actor'
-  belongs_to :commentable, polymorphic: true, counter_cache: true
+  belongs_to :commentable, polymorphic: true
+  belongs_to :activity, foreign_key: :commentable_id, class_name: "Activity", counter_cache: true
   belongs_to :parent, class_name: "Comment"
   has_many   :children, class_name: "Comment"
 
