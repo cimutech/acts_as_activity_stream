@@ -17,11 +17,13 @@ class Comment < ActiveRecord::Base
       json.body           body
       json.sender         sender.to_builder.attributes!
       json.sender_time    created_at
+      json.receiver       receiver
       # if parent
       #   json.parent_sender  parent.sender.to_builder.attributes!
       # end
-      if to_activity?
-        json.comments       flat_children.order('created_at').collect { |a| a.to_builder.attributes! }
+      flat = flat_children.order('created_at').collect { |a| a.to_builder.attributes! }
+      if to_activity? && !flat.blank?
+        json.comments      flat
       end
     end
   end
@@ -51,5 +53,17 @@ class Comment < ActiveRecord::Base
 
   def to_activity?
     commentable.class.name == 'Activity'
+  end
+
+  def to_comment?
+    commentable.class.name == 'Comment'
+  end
+
+  def receiver
+    if to_activity?
+      commentable.author.to_builder.attributes!
+    elsif to_comment?
+      commentable.sender.to_builder.attributes!
+    end
   end
 end
