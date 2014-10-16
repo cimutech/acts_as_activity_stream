@@ -32,7 +32,7 @@ class Comment < ActiveRecord::Base
   def final_obj
     obj = self
     while obj.to_comment?
-      obj = self.commentable
+      obj = obj.commentable
     end
     obj.commentable
   end
