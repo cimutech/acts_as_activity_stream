@@ -36,7 +36,7 @@ class Activity < ActiveRecord::Base
       json.author         author.actorable.to_builder.attributes!
       json.likes_count    likes_count
       json.comments_count comments_count
-      json.comments       comments.order('created_at').collect { |a| a.to_builder.attributes! }
+      # json.comments       comments.order('created_at').collect { |a| a.to_builder.attributes! }
       json.created_at     created_at
       json.updated_at     updated_at
     end
