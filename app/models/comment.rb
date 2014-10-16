@@ -28,6 +28,23 @@ class Comment < ActiveRecord::Base
     end
   end
 
+  #final target of comment
+  def final_obj
+    obj = self
+    while obj.to_comment?
+      obj = self.commentable
+    end
+    obj.commentable
+  end
+
+  def to_activity?
+    commentable.class.name == 'Activity'
+  end
+
+  def to_comment?
+    commentable.class.name == 'Comment'
+  end
+
   def flat_children
     children.each do |a|
       a.flat_children.each do |b|
@@ -49,14 +66,6 @@ class Comment < ActiveRecord::Base
 
   def has_parent?
     !parent.nil?
-  end
-
-  def to_activity?
-    commentable.class.name == 'Activity'
-  end
-
-  def to_comment?
-    commentable.class.name == 'Comment'
   end
 
   def receiver

@@ -139,7 +139,9 @@ module ActsAsActivityStream
 
         def reply_comment(comment, body)
           comment = Comment.find(comment) if comment.is_a?(Integer)
-          comment.children.create!(body: body, sender_id: actor.id, parent_id: comment.id)
+          if comment.final_obj.respond_to? :can_read_by? and comment.final_obj.can_read_by? actor
+            comment.children.create!(body: body, sender_id: actor.id, parent_id: comment.id)
+          end
         end
 
         def wall(type, options = {})
