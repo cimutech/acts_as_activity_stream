@@ -21,9 +21,9 @@ class Comment < ActiveRecord::Base
       # if parent
       #   json.parent_sender  parent.sender.to_builder.attributes!
       # end
-      flat = flat_children.order('created_at').collect { |a| a.to_builder.attributes! }
-      if to_activity? && !flat.blank?
-        json.comments      flat
+      if to_activity?
+        json.comments      flat_children.sort { |a,b| a.created_at <=> b.created_at}
+                                        .collect { |a| a.to_builder.attributes! }
       end
     end
   end
@@ -46,12 +46,13 @@ class Comment < ActiveRecord::Base
   end
 
   def flat_children
+    arr = children.to_ary
     children.each do |a|
       a.flat_children.each do |b|
-        children.build b.attributes
+        arr.push b
       end
     end
-    children
+    arr
   end
 
   private
