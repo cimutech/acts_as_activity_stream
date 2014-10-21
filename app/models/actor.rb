@@ -203,12 +203,14 @@ class Actor < ActiveRecord::Base
 
   # The set of {Activity activities} in the wall of this {Actor}.
   #
-  # There are two default types of walls:
+  # There are three default types of walls:
   # home:: includes all the {Activity activities} from this {Actor} and their followed {Actor actors}
   #
   # profile:: The set of activities in the wall profile of this {Actor}, it includes only the
   #           activities from this actor
-  #
+
+  # custom:: custom actor_ids passed by options[:actor_ids]
+
   # Options:
   # :actor_ids:: activities from specify actors
   #
@@ -219,6 +221,8 @@ class Actor < ActiveRecord::Base
         sharer_ids
       when :profile
         id
+      when :custom
+        options[:actor_ids]
       else
         if options[:actor_ids].nil?
           raise "Unknown type of wall without actor_ids: #{ type }"
